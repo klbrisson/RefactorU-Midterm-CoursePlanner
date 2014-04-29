@@ -4,9 +4,24 @@
 
 .course-description {
 	display: none;
+	position: relative;
+}
+
+#add-elective-btn {
+	position: absolute;
+	bottom: 0;
+	right: 0;
 }
 
 .fall, .spring {
-	height: 300px;
 	border: 1px solid black;
+	min-height: 100px;
+}
+
+.required-course {
+	background-color: #CCE9ED;
+}
+
+.elective-course {
+	background-color: #D4EDCC;
 }

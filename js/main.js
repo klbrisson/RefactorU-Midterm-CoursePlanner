@@ -145,8 +145,28 @@ function mapCreateCourse(arr) {
 	});
 }
 
+function createYear() {
 
+	var year = $('.year.template').clone();
+	year.removeClass('template');
+	year.find('.course.template').remove();
 
+	// year.find('.year-fall').text(yearDate);
+	// year.find('.year-spring').text(yearDate + 1);
+
+	return year;
+}
+
+function appendYears(numYears) {
+	var yearDate = new Date().getFullYear();
+	$('#years-container').empty();
+	for (var i=0; i<numYears; i++) {
+		var currYear = createYear();
+		currYear.find('.year-fall').text(yearDate + i);
+		currYear.find('.year-spring').text(yearDate + i + 1);
+		$('#years-container').append(currYear);
+	}
+}
 
 
 
@@ -159,15 +179,18 @@ function mapCreateCourse(arr) {
 
 
 $(document).on('ready', function() {
+	var numYears = $('#select-years').val();
+	appendYears(numYears);
 
 
+// Append years based on select-year value
+	$(document).on('change', '#select-years', function() {
+		var numYears = $(this).val();
+		appendYears(numYears);
+		$('.sortable').sortable();
+	})
 
-
-
-
-
-	$('.fall').append(MATH117.createCourse());
-	$('.spring').append(MATH118.createCourse());
+// Append courses and majors
 	$('#required-courses').append(mapCreateCourse(courseList));
 	$('#select-major').append(majorList.map(function(major) {
 		return major.createMajor();
@@ -191,6 +214,7 @@ $(document).on('ready', function() {
 		else {
 			var majorCourses = findRequiredCourses(majorName);
 			$('#required-courses').append(mapCreateCourse(majorCourses));
+			$('#required-courses').find('.course').addClass('required-course');
 		}
 	});
 
@@ -208,48 +232,29 @@ $(document).on('ready', function() {
 
 
 // Add Course to Electives List
-	$(document).on('click', '#course-list-btn', function() {
-	});
-
 	$(document).on('click', '#add-elective-btn', function() {
 		var selectedCourse = $(this).closest('li').clone();
 		selectedCourse.find('#add-elective-btn').remove();
-		selectedCourse.find('#add-elective-btn').remove();
 		selectedCourse.find('.course-description').hide();
-
 		$('#my-electives').append(selectedCourse);
-		$('#my-electives').addClass('sortable');
-
+		$('#my-electives').find('.course').addClass('elective-course');
 		$(this).closest('li').find('.course-description').toggle();
-		$("#my-electives").sortable();
-
-
-
 	});
 
 
+// Test - event on change of sort order
 
 
 
 
-
-
-
-
-
-	
 
 
 
 
 
 // Sortable Drag and Drop 
-	$("#required-courses").sortable();
-	$(".sortable").sortable();
-	$('.sortable').sortable({
-    forcePlaceholderSize: true 
-	});
-	$('#required-courses, .fall, .spring').sortable({
+	$('.sortable').sortable();
+	$('.sortable, .sortable').sortable({
 	    connectWith: '.connected'
 	});
 
