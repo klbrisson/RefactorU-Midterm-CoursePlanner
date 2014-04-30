@@ -2,21 +2,13 @@
 	display: none;
 }
 
-.course-description {
+.course-info {
 	display: none;
 	position: relative;
 }
 
-#add-elective-btn {
-	position: absolute;
-	bottom: 0;
-	right: 0;
-}
-
 .fall, .spring {
 	min-height: 100px;
-	border-left:1px solid #EDEDED;
-
 }
 
 .year {
@@ -25,13 +17,8 @@
 }
 .semester{
 	height: inherit;
+	border-left:1px solid #EDEDED;
 }
-
-.credits {
-	position: absolute;
-	bottom: 2px;
-}
-
 .required-course {
 	background-color: #CCE9ED;
 }
@@ -43,8 +30,6 @@
 .highlight-error {
 	background-color: #FFBABA;
 }
-
-
 
 body {
 	background-color: #4A4A4A;
@@ -60,13 +45,14 @@ body {
 	background-size: 100%;
 }
 
+#required-courses {
+	max-height: 400px;
+	overflow: scroll;
+}
 
-
-
-
-
-
-
+.prereq-error {
+	display: none;
+}
 
 
 

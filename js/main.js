@@ -20,7 +20,14 @@ var MATH117 = new Course(
 	'Functions as mathematical models. Linear, quadratic, and polynomial functions considered symbolically, graphically, numerically, and contextually.'
 );
 
-var MATH118 = new Course ('MATH',118,'College Algebra in Context II',1,['F','S','SS'],'Reciprocals of linear functions, rational functions, and power functions considered symbolically, graphically, numerically, and contextually. ',[MATH117]);
+var MATH118 = new Course ('MATH',
+	118,
+	'College Algebra in Context II',
+	1,
+	['F','S','SS'],
+	'Reciprocals of linear functions, rational functions, and power functions considered symbolically, graphically, numerically, and contextually. ',
+	['MATH117']
+);
 
 var CS110 = new Course (
 	'CS',
@@ -38,7 +45,7 @@ var CS122 = new Course (
 	1,
 	['F','S'],
 	'Set theory, definitions operations, Venn diagrams, power sets, propositional logic and proofs. Functions; loop invariants',
-	[MATH118, CS161]
+	['MATH118', 'CS161']
 );
 
 var CS160 = new Course (
@@ -48,7 +55,7 @@ var CS160 = new Course (
 	4,
 	['F','S'],
 	'Introduction to computer theory, programming and systems. Sets, functions, logic. Procedural programming in Java. Computer and data models',
-	[MATH118]
+	['MATH118']
 );
 
 var CS161 = new Course (
@@ -58,18 +65,51 @@ var CS161 = new Course (
 	4,
 	['F','S'],
 	'Fundamental object oriented concepts, inheritance, polymorphism, basic algorithms, linked lists, assertions, recursion, induction, counting.',
-	[CS160]
-	//, ['MATH141', 'MATH155', 'MATH160']
+	['CS160']
+	//['MATH141', 'MATH155', 'MATH160']
 );
+
+var ART100 = new Course (
+	'ART',
+	100,
+	'Introduction to the Visual Arts',
+	3,
+	['F','S','SS'],
+	'Exploration of the development of visual arts.'
+);
+
+
+
+var ART101 = new Course (
+	'ART',
+	101,
+	'Visual Form',
+	3,
+	['F','S','SS'],
+	'Two- and three-dimensional design to develop visual awareness and insight into structure and organization of visual arts.'
+);
+
+var ART105 = new Course (
+	'ART',
+	105,
+	'Issues and Practices in Art',
+	1,
+	['F','S'],
+	'Current issues, practices, and resources in the visual arts; integration of unified vocabulary in various art disciplines.'
+);
+
 
 
 // var courseList = new CourseCatalog(E140, MATH117, MATH118, CS110, CS122, CS160, CS161);
 var comSci = new Major('Computer Science', 'CS', [MATH117, MATH118, CS110, CS122, CS160, CS161]);
 var eng = new Major('English', 'E', [E140]);
 var math = new Major('Math', 'MATH', [MATH117, MATH118]);
+var art = new Major('Art', 'ART', [ART100, ART101, ART105]);
 
-var courseList = [E140, MATH117, MATH118, CS110, CS122, CS160, CS161];
-var majorList = [comSci, eng, math];
+
+var courseList = [E140, MATH117, MATH118, CS110, CS122, CS160, CS161, ART100, ART101, ART105];
+
+var majorList = [comSci, eng, math, art];
 
 
 
@@ -103,6 +143,11 @@ Course.prototype.createCourse = function() {
 	course.find('.course-credits').text(this.credits);
 	course.find('.course-description').text(this.description);
 	course.removeClass('template');
+
+	if (this.prereqs !== undefined) {
+		var prerequisites = this.prereqs.join(', ');
+		course.find('.prereq-error>span').text(prerequisites);
+	}
 	return course;
 };
 
@@ -124,8 +169,8 @@ Major.prototype.createMajor = function() {
 function Schedule (startingYear, numYears) {
 	this.allSemesters = [];
 	for (var i=0; i<numYears; i++) {
-		var fall = 'fall' + (startingYear + i);
-		var spring = 'spring' + (startingYear + i + 1);
+		var fall = 'sem-fall' + (startingYear + i);
+		var spring = 'sem-spring' + (startingYear + i + 1);
 		this[fall] = [];
 		this[spring] = [];
 		this.allSemesters.push(fall);
@@ -140,28 +185,25 @@ Schedule.prototype.arePrereqsTaken = function(course, semester) {
 	if (course.prereqs === undefined) {
 		return true;
 	}
-	var courseScheduled = false;
+	var allCoursesScheduled = 0;
 	for (var i=0; i<course.prereqs.length; i++) {
-		var courseNeeded = course.prereqs[i].courseCode;
+		var courseNeeded = course.prereqs[i];
 		for (key in this) {
-			if (this[key] instanceof Array === true) {
-				if (filterByCode(this[key], courseNeeded).length > 0) {
-					courseScheduled = true;
-					var prereqSemester = key;
-					if (courseScheduled) {
-						console.log('course scheduled');
-					}
-
-				}
+			if (key.indexOf('sem-') !== -1 
+				&& filterByCode(this[key], courseNeeded).length > 0
+				&& this.allSemesters.indexOf(key) < this.allSemesters.indexOf(semester)) {
+				allCoursesScheduled++;
 			}
 		}
 	}
-	console.log(prereqSemester);
-	if (courseScheduled) {
-		return this.allSemesters.indexOf(prereqSemester) < this.allSemesters.indexOf(semester);
-	}
-	return false;
+	return allCoursesScheduled === course.prereqs.length ? true : false;
 };
+
+
+
+
+
+
 
 // Returns an array of required courses for the given major in majorList
 function findRequiredCourses(major) {
@@ -175,9 +217,11 @@ function findRequiredCourses(major) {
 
 // Filter through course names, returning an array of any courses that
 // have names containing the given string
-function filterByName(str) {
+function searchForCourse(str) {
 	var filteredArray = courseList.filter(function(obj) {
-		return obj.name.toLowerCase().indexOf(str.toLowerCase()) !== -1;
+		return obj.name.toLowerCase().indexOf(str.toLowerCase()) !== -1 ||
+		obj.courseCode.toLowerCase().indexOf(str.toLowerCase().replace(' ','')) !== -1 ?
+		true : false;
 	})
 	return filteredArray;
 }
@@ -208,9 +252,13 @@ function createYear() {
 function addYears(numYears, startingYear) {
 	$('#years-container').empty();
 	for (var i=0; i<numYears; i++) {
+		var fall = 'Fall ' + (startingYear + i);
+		var spring = 'Spring ' + (startingYear + i + 1);
 		var currYear = createYear();
-		currYear.find('.year-fall').text('Fall ' + (startingYear + i));
-		currYear.find('.year-spring').text('Spring ' + (startingYear + i + 1));
+		currYear.find('.year-fall').text(fall);
+		currYear.find('.year-spring').text(spring);
+		currYear.find('.credits').eq(0).find('span').addClass('credits-sem-' + fall.toLowerCase().replace(' ',''));
+		currYear.find('.credits').eq(1).find('span').addClass('credits-sem-' + spring.toLowerCase().replace(' ',''));
 		$('#years-container').append(currYear);
 	}
 }
@@ -225,6 +273,9 @@ function mapCreateCourse(arr) {
 
 // takes a string of numbers and returns the sum of the numbers as a number
 function strToSum(str) {
+	if (str === '') {
+		return 0;
+	}
 	var arr = str.split('');
 	var isNumber = true;
 	arr = arr.map(function(i){
@@ -248,11 +299,29 @@ function strToSum(str) {
 
 
 
+
+
+
+
 $(document).on('ready', function() {
 	var numYears = $('#select-years').val();
 	var thisYear = new Date().getFullYear();
 	var mySchedule = new Schedule(thisYear, numYears);
-	console.log(mySchedule);
+
+function highlightPrereqErrors(schedule) {
+	$('#years-container').find('.course-code').each(function(i) {
+		var courseCode = $(this).text().replace(' ','');
+		var course = filterByCode(courseList, courseCode)[0];
+		var currSemester = 'sem-' + $(this).closest('.semester').find('.semester-label').text().replace(' ','').toLowerCase();
+		schedule[currSemester].push(course);
+		var prereqsTaken = mySchedule.arePrereqsTaken(course, currSemester);
+		if (!prereqsTaken) {
+			$(this).closest('.course').addClass('highlight-error');
+			$(this).closest('.course').find('.prereq-error').show();
+		}
+	});
+}
+
 
 
 // Appends default number of years
@@ -263,16 +332,19 @@ $(document).on('ready', function() {
 	$(document).on('change', '#select-years', function() {
 		var numYears = $(this).val();
 		addYears(numYears, thisYear);
+
+		// Make new years added be sortable
 		$('.sortable').sortable();
+		$('.sortable, .sortable').sortable({
+		    connectWith: '.connected'
+		});
 	})
 
-// Append courses and majors
+// Append courses and majors to lists
 	$('#required-courses').append(mapCreateCourse(courseList));
 	$('#select-major').append(majorList.map(function(major) {
 		return major.createMajor();
 	}));
-	$('#course-listing').append(mapCreateCourse(courseList));
-	$('#course-listing').find('.course-description').append('<button id="add-elective-btn" class="btn btn-default btn-xs">Add Elective</button>');
 
 
 // Display Required Courses Based On Major
@@ -294,84 +366,77 @@ $(document).on('ready', function() {
 
 // Show course description on click
 	$(document).on('click', '.course-name', function() {
-		$(this).closest('.course').find('.course-description').toggle();
+		$(this).closest('.course').find('.course-info').toggle();
 	});
 
+// Clear the modal courses, and re-append courseList
+$(document).on('click','#course-list-btn', function() {
+	$('#course-search').closest('form')[0].reset();
+	$('#course-listing').empty();
+	$('#course-listing').append(mapCreateCourse(courseList));
+	$('#course-listing').find('.course-info').append('<div><button class="add-elective-btn btn btn-default btn-xs">Add Elective</button></div>');
+});
+
 // Search courses by course name 
-	$(document).on('keydown', '#course-search', function() {
+	$(document).on('keyup', '#course-search', function() {
 		$('#course-listing').empty();
 		var search = $(this).val();
-		$('#course-listing').append(mapCreateCourse(filterByName(search)));
+		console.log(search);
+		$('#course-listing').append(mapCreateCourse(searchForCourse(search)));
+		$('#course-listing').find('.course-info').append('<div><button class="add-elective-btn btn btn-default btn-xs">Add Elective</button></div>');
 	});
 
 
 // Add Course to Electives List
-	$(document).on('click', '#add-elective-btn', function() {
+	$(document).on('click', '.add-elective-btn', function() {
 		var selectedCourse = $(this).closest('li').clone();
-		selectedCourse.find('#add-elective-btn').remove();
-		selectedCourse.find('.course-description').hide();
+		selectedCourse.find('.course-info').hide();
 		$('#my-electives').append(selectedCourse);
 		$('#my-electives').find('.course').addClass('elective-course');
-		$(this).closest('li').find('.course-description').toggle();
+		$(this).closest('li').find('.course-info').toggle();
 	});
 
 
-
-
+// Update displayed credits, reset course classes and empty mySchedule
 $(document).on('sortreceive','.semester',function() {
-
+	var currSemester = 'sem-' + $(this).find('.semester-label').text().replace(' ','').toLowerCase();
 
 	// Update Semester Credits
-	var credits = $(this).find('.course-credits').text();
+	var credits = $(this).closest('.semester').find('.course-credits').text();
 	credits = strToSum(credits);
-	$(this).closest('.semester').find('.credits').find('span').text(credits);
+	$(this).closest('.year').find('.credits-' + currSemester).text(credits);
 
-
-	// Check prerequisites for each course
-	var currSemester = $(this).closest('.semester').find('.semester-label').text().replace(' ','').toLowerCase();
-	mySchedule[currSemester] = [];
-	
-	$(this).find('.course-code').each(function(i) {
-		var courseCode = $(this).text().replace(' ','');
-		var course = filterByCode(courseList, courseCode)[0];
-		mySchedule[currSemester].push(course);
-		var prereqsTaken = mySchedule.arePrereqsTaken(course, currSemester);
-		if (!prereqsTaken) {
-			$(this).closest('.course').addClass('highlight-error');
-		}
-		if(prereqsTaken) {
-			$(this).closest('.course').removeClass('highlight-error');
-		}
+	// Reset course classes and empty semester arrays in mySchedule
+	$('.course').removeClass('highlight-error');
+	$('.course').find('.prereq-error').hide();
+	$('.semester').each(function(i) {
+		mySchedule[currSemester] = [];
 	});
-})
+
+	// Highlight any prerequisite errors
+	highlightPrereqErrors(mySchedule);
+});
 
 $(document).on('sortremove','.semester', function() {
+	var currSemester = 'sem-' + $(this).find('.semester-label').text().replace(' ','').toLowerCase();
 
-	var currSemester = $(this).closest('.semester').find('.semester-label').text().replace(' ','').toLowerCase();
-	mySchedule[currSemester] = [];
+	// Update Semester Credits
+	var credits = $(this).closest('.semester').find('.course-credits').text();
+	credits = strToSum(credits);
+	$(this).closest('.year').find('.credits-' + currSemester).text(credits);
 
-	// Check prerequisites for each course
-	$(this).find('.course-code').each(function(i) {
-		var courseCode = $(this).text().replace(' ','');
-		var course = filterByCode(courseList, courseCode)[0];
-		mySchedule[currSemester].push(course);
-		var prereqsTaken = mySchedule.arePrereqsTaken(course, currSemester);
-		if (!prereqsTaken) {
-			$(this).closest('.course').addClass('highlight-error');
-		}
-		if(prereqsTaken) {
-			$(this).closest('.course').removeClass('highlight-error');
-		}
+
+	// Reset course classes and empty semester arrays in mySchedule
+	$('.course').removeClass('highlight-error');
+	$('.course').find('.prereq-error').hide();
+	$('.semester').each(function(i) {
+		mySchedule[currSemester] = [];
 	});
 
+	// Highlight any prerequisite errors
+	highlightPrereqErrors(mySchedule);
 
-})
-
-
-
-
-
-
+});
 
 
 // Sortable Drag and Drop 
