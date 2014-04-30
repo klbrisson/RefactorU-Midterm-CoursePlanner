@@ -304,9 +304,55 @@ function strToSum(str) {
 
 
 $(document).on('ready', function() {
-	var numYears = $('#select-years').val();
 	var thisYear = new Date().getFullYear();
-	var mySchedule = new Schedule(thisYear, numYears);
+
+// Add years to starting year selector
+	for (var i = thisYear-10; i <= thisYear+10; i++){
+		if (i === thisYear){
+			$('#starting-year').append('<option selected="selected">' + i + '</option>');
+		}
+		else {
+			$('#starting-year').append('<option>' + i + '</option>');
+		}
+	}
+
+// Default number of years and starting year
+	var startingYear = +$('#starting-year').val();
+	var numYears = +$('#select-years').val();
+	var mySchedule;
+	updateYears();
+
+// updates the display and mySchedule to new starting-year and select-years values	
+	function updateYears() {
+		startingYear = +$('#starting-year').val();
+		numYears = +$('#select-years').val();
+		addYears(numYears, startingYear);
+		mySchedule = new Schedule(startingYear, numYears);
+		console.log(mySchedule);
+		$('.sortable').sortable();
+		$('.sortable, .sortable').sortable({
+		    connectWith: '.connected'
+		});
+	}
+
+
+// Update mySchedule on change of starting year
+	$(document).on('change','#starting-year', function() {
+		updateYears();
+	});
+
+
+// Append years based on select-year value and update mySchedule
+	$(document).on('change', '#select-years', function() {
+		updateYears();
+	})
+
+
+
+
+
+
+
 
 function highlightPrereqErrors(schedule) {
 	$('#years-container').find('.course-code').each(function(i) {
@@ -324,21 +370,7 @@ function highlightPrereqErrors(schedule) {
 
 
 
-// Appends default number of years
-	addYears(numYears, thisYear);
 
-
-// Append years based on select-year value
-	$(document).on('change', '#select-years', function() {
-		var numYears = $(this).val();
-		addYears(numYears, thisYear);
-
-		// Make new years added be sortable
-		$('.sortable').sortable();
-		$('.sortable, .sortable').sortable({
-		    connectWith: '.connected'
-		});
-	})
 
 // Append courses and majors to lists
 	$('#required-courses').append(mapCreateCourse(courseList));
@@ -454,8 +486,8 @@ $(document).on('sortremove','.semester', function() {
 
 
 
-});
 
+});
 
 
 

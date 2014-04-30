@@ -17,7 +17,10 @@
 }
 .semester{
 	height: inherit;
-	border-left:1px solid #EDEDED;
+	padding: 0;
+	border-right: 1px solid #EDEDED;
+	border-left: 1px solid #EDEDED;
+
 }
 .required-course {
 	background-color: #CCE9ED;

@@ -19,6 +19,8 @@
 
 .semester {
   height: inherit;
+  padding: 0;
+  border-right: 1px solid #EDEDED;
   border-left: 1px solid #EDEDED;
 }
 
