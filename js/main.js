@@ -58,7 +58,8 @@ var CS161 = new Course (
 	4,
 	['F','S'],
 	'Fundamental object oriented concepts, inheritance, polymorphism, basic algorithms, linked lists, assertions, recursion, induction, counting.',
-	[CS160, ['MATH141', 'MATH155', 'MATH160']]
+	[CS160]
+	//, ['MATH141', 'MATH155', 'MATH160']
 );
 
 
@@ -87,6 +88,7 @@ var majorList = [comSci, eng, math];
 function Course (department, code, name, credits, semesters, description, prereqs) {
 	this.department = department;
 	this.code = code;
+	this.courseCode = department + code;
 	this.name = name;
 	this.credits = credits;
 	this.semesters = semesters;
@@ -96,6 +98,7 @@ function Course (department, code, name, credits, semesters, description, prereq
 // Create and return jquery course object
 Course.prototype.createCourse = function() {
 	var course = $('.course.template').clone();
+	course.find('.course-code').text(this.department + ' ' + this.code);
 	course.find('.course-name').text(this.name);
 	course.find('.course-credits').text(this.credits);
 	course.find('.course-description').text(this.description);
@@ -117,6 +120,48 @@ Major.prototype.createMajor = function() {
 	return major;
 }
 
+// Schedule Constructor
+function Schedule (startingYear, numYears) {
+	this.allSemesters = [];
+	for (var i=0; i<numYears; i++) {
+		var fall = 'fall' + (startingYear + i);
+		var spring = 'spring' + (startingYear + i + 1);
+		this[fall] = [];
+		this[spring] = [];
+		this.allSemesters.push(fall);
+		this.allSemesters.push(spring);
+	}
+}
+
+// Given a course object, the function will check to see if all of the
+// prerequisites are in the schedule prior to the desired semester.
+// If the course has no prerequisites, the function will return true.
+Schedule.prototype.arePrereqsTaken = function(course, semester) {
+	if (course.prereqs === undefined) {
+		return true;
+	}
+	var courseScheduled = false;
+	for (var i=0; i<course.prereqs.length; i++) {
+		var courseNeeded = course.prereqs[i].courseCode;
+		for (key in this) {
+			if (this[key] instanceof Array === true) {
+				if (filterByCode(this[key], courseNeeded).length > 0) {
+					courseScheduled = true;
+					var prereqSemester = key;
+					if (courseScheduled) {
+						console.log('course scheduled');
+					}
+
+				}
+			}
+		}
+	}
+	console.log(prereqSemester);
+	if (courseScheduled) {
+		return this.allSemesters.indexOf(prereqSemester) < this.allSemesters.indexOf(semester);
+	}
+	return false;
+};
 
 // Returns an array of required courses for the given major in majorList
 function findRequiredCourses(major) {
@@ -128,14 +173,47 @@ function findRequiredCourses(major) {
 	return majorCourses;
 }
 
-// Filter courses by name
-function filterByName(name) {
+// Filter through course names, returning an array of any courses that
+// have names containing the given string
+function filterByName(str) {
 	var filteredArray = courseList.filter(function(obj) {
-		return obj.name.toLowerCase().indexOf(name.toLowerCase()) !== -1;
+		return obj.name.toLowerCase().indexOf(str.toLowerCase()) !== -1;
 	})
 	return filteredArray;
 }
 
+// Filter through courses, returning the course object that matches the course code
+function filterByCode(arr, courseCode) {
+	if (arr.length === 0) {
+		return arr;
+	}
+	var filteredArray = arr.filter(function(obj) {
+		return obj.courseCode === courseCode;
+	})
+	return filteredArray;
+}
+
+
+
+
+// Creates and returns a year element
+function createYear() {
+	var year = $('.year.template').clone();
+	year.removeClass('template');
+	year.find('.course.template').remove();
+	return year;
+}
+
+// Append desired number of years to #years-container
+function addYears(numYears, startingYear) {
+	$('#years-container').empty();
+	for (var i=0; i<numYears; i++) {
+		var currYear = createYear();
+		currYear.find('.year-fall').text('Fall ' + (startingYear + i));
+		currYear.find('.year-spring').text('Spring ' + (startingYear + i + 1));
+		$('#years-container').append(currYear);
+	}
+}
 
 // Temporary helper function to map through a given array of courses,
 // returning the jquery course objects. - Want to find a better solution
@@ -145,29 +223,21 @@ function mapCreateCourse(arr) {
 	});
 }
 
-function createYear() {
-
-	var year = $('.year.template').clone();
-	year.removeClass('template');
-	year.find('.course.template').remove();
-
-	// year.find('.year-fall').text(yearDate);
-	// year.find('.year-spring').text(yearDate + 1);
-
-	return year;
+// takes a string of numbers and returns the sum of the numbers as a number
+function strToSum(str) {
+	var arr = str.split('');
+	var isNumber = true;
+	arr = arr.map(function(i){
+		if (typeof +i !== 'number'){
+			isNumber = false;
+		}
+		return +i;
+	})
+	var num = arr.reduce(function(a,b) {
+		return a + b;
+	})
+	return num;
 }
-
-function appendYears(numYears) {
-	var yearDate = new Date().getFullYear();
-	$('#years-container').empty();
-	for (var i=0; i<numYears; i++) {
-		var currYear = createYear();
-		currYear.find('.year-fall').text(yearDate + i);
-		currYear.find('.year-spring').text(yearDate + i + 1);
-		$('#years-container').append(currYear);
-	}
-}
-
 
 
 
@@ -180,13 +250,19 @@ function appendYears(numYears) {
 
 $(document).on('ready', function() {
 	var numYears = $('#select-years').val();
-	appendYears(numYears);
+	var thisYear = new Date().getFullYear();
+	var mySchedule = new Schedule(thisYear, numYears);
+	console.log(mySchedule);
+
+
+// Appends default number of years
+	addYears(numYears, thisYear);
 
 
 // Append years based on select-year value
 	$(document).on('change', '#select-years', function() {
 		var numYears = $(this).val();
-		appendYears(numYears);
+		addYears(numYears, thisYear);
 		$('.sortable').sortable();
 	})
 
@@ -197,8 +273,6 @@ $(document).on('ready', function() {
 	}));
 	$('#course-listing').append(mapCreateCourse(courseList));
 	$('#course-listing').find('.course-description').append('<button id="add-elective-btn" class="btn btn-default btn-xs">Add Elective</button>');
-
-
 
 
 // Display Required Courses Based On Major
@@ -218,7 +292,7 @@ $(document).on('ready', function() {
 		}
 	});
 
-// Show course description
+// Show course description on click
 	$(document).on('click', '.course-name', function() {
 		$(this).closest('.course').find('.course-description').toggle();
 	});
@@ -242,8 +316,56 @@ $(document).on('ready', function() {
 	});
 
 
-// Test - event on change of sort order
 
+
+$(document).on('sortreceive','.semester',function() {
+
+
+	// Update Semester Credits
+	var credits = $(this).find('.course-credits').text();
+	credits = strToSum(credits);
+	$(this).closest('.semester').find('.credits').find('span').text(credits);
+
+
+	// Check prerequisites for each course
+	var currSemester = $(this).closest('.semester').find('.semester-label').text().replace(' ','').toLowerCase();
+	mySchedule[currSemester] = [];
+	
+	$(this).find('.course-code').each(function(i) {
+		var courseCode = $(this).text().replace(' ','');
+		var course = filterByCode(courseList, courseCode)[0];
+		mySchedule[currSemester].push(course);
+		var prereqsTaken = mySchedule.arePrereqsTaken(course, currSemester);
+		if (!prereqsTaken) {
+			$(this).closest('.course').addClass('highlight-error');
+		}
+		if(prereqsTaken) {
+			$(this).closest('.course').removeClass('highlight-error');
+		}
+	});
+})
+
+$(document).on('sortremove','.semester', function() {
+
+	var currSemester = $(this).closest('.semester').find('.semester-label').text().replace(' ','').toLowerCase();
+	mySchedule[currSemester] = [];
+
+	// Check prerequisites for each course
+	$(this).find('.course-code').each(function(i) {
+		var courseCode = $(this).text().replace(' ','');
+		var course = filterByCode(courseList, courseCode)[0];
+		mySchedule[currSemester].push(course);
+		var prereqsTaken = mySchedule.arePrereqsTaken(course, currSemester);
+		if (!prereqsTaken) {
+			$(this).closest('.course').addClass('highlight-error');
+		}
+		if(prereqsTaken) {
+			$(this).closest('.course').removeClass('highlight-error');
+		}
+	});
+
+
+})
 
 
 

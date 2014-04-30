@@ -15,8 +15,22 @@
 
 .fall,
 .spring {
-  border: 1px solid black;
   min-height: 100px;
+  border-left: 1px solid #EDEDED;
+}
+
+.year {
+  border-top: 1px solid #EDEDED;
+  position: relative;
+}
+
+.semester {
+  height: inherit;
+}
+
+.credits {
+  position: absolute;
+  bottom: 2px;
 }
 
 .required-course {
@@ -25,4 +39,25 @@
 
 .elective-course {
   background-color: #D4EDCC;
+}
+
+.highlight-error {
+  background-color: #FFBABA;
+}
+
+body {
+  background-color: #4A4A4A;
+}
+
+.container {
+  background-color: #fff;
+}
+
+.header {
+  color: #FFF;
+  text-shadow: .15em .15em .15em #000;
+  margin-bottom: 20px;
+  background-image: url(http://static.panoramio.com/photos/large/208500.jpg);
+  -webkit-background-size: 100%;
+  background-size: 100%;
 }

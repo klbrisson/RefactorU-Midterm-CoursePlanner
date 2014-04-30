@@ -7,8 +7,14 @@
   <link rel="stylesheet" type="text/css" href="css/main.css">
 </head>
 <body>
-
 	<div class="container">
+		<div class="header jumbotron">
+			<div class="header-text">
+				<h1>Course Planner</h1>
+				<p>Create your four year plan!</p>
+			</div>
+		</div>
+
 		<div class="row">
 
 	<!-- Courses to add -->
@@ -83,31 +89,33 @@
 				</div>
 			</div>
 
-
 		<!-- Year -->
 			<div class="col-xs-8">
+				<h3>My Schedule</h3>
 					<div class="year template row">
 						<!-- <h3>Year</h3> -->
 
 					<!-- Fall Semester -->
-						<div class="col-xs-6">
-							<h4>Fall <span class="year-fall"></span></h4>
+						<div class="semester col-xs-6">
+							<h4 class="year-fall semester-label"></h4>
 							<ul class="fall sortable connected list-unstyled list-group">
 								<li class="course template list-group-item">
 									<div class="row">
-										<div class="course-name col-xs-10">Courses</div>
+										<div class="course-code col-xs-2">Course Code</div>
+										<div class="course-name col-xs-8">Courses</div>
 										<div class="course-credits col-xs-2">Credits</div>
 									</div>
 									<div class="course-description">Description</div>					
 								</li>
 							</ul>
-							<div>Credits:<span class="credits"></span></div>
+							<div class="credits">Semester Credits: <span></span></div>
 						</div>
 
 					<!-- Spring Semester -->
-						<div class="col-xs-6">
-							<h4>Spring <span class="year-spring"></span></h4>
+						<div class="semester col-xs-6">
+							<h4 class="year-spring semester-label"></h4>
 							<ul class="spring sortable connected list-unstyled list-group"></ul>
+							<div class="credits">Semester Credits: <span></span></div>
 						</div>
 
 					</div>
