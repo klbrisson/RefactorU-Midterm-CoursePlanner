@@ -6,7 +6,7 @@ var E140 = new Course(
 	140,
 	'The Study of Literature',
 	3,
-	['F','S','SS'],
+	['F'],
 	'Basic principles of reading literary texts.'
 );
 
@@ -25,7 +25,7 @@ var MATH118 = new Course (
 	118,
 	'College Algebra in Context II',
 	1,
-	['F','S','SS'],
+	['S','SS'],
 	'Reciprocals of linear functions, rational functions, and power functions considered symbolically, graphically, numerically, and contextually. ',
 	['MATH117']
 );
@@ -216,10 +216,13 @@ Course.prototype.createCourse = function() {
 	course.find('.course-credits').text(this.credits);
 	course.find('.course-description').text(this.description);
 	course.removeClass('template');
+
 	if (this.prereqs !== undefined) {
 		var prerequisites = this.prereqs.join(', ');
-		course.find('.prereq-error>span').text(prerequisites);
+		course.find('.course-prerequisites').text(prerequisites);
 	}
+	var semOffered = this.semesters.join(', ');
+	course.find('.course-semesters').text(semOffered);
 	return course;
 };
 
@@ -266,10 +269,11 @@ Schedule.prototype.arePrereqsTaken = function(course, courseSemester) {
 	}
 
 	var numPrereqsFullfilled = 0;
+	var prereqFullfilled = false;
+
 
 	for (var i=0; i<course.prereqs.length; i++) {
 		var courseNeeded = course.prereqs[i];
-		console.log(i, courseNeeded instanceof Array);
 
 		for (key in this) {
 			// checks if the object key is a semester rather than a function or the array of allSemesters
@@ -287,8 +291,9 @@ Schedule.prototype.arePrereqsTaken = function(course, courseSemester) {
 					var prereqBoolArray = courseNeeded.map(function(j) {
 						return filterByCode(semester, j).length > 0;
 					});
-					if (prereqBoolArray.indexOf(true) !== -1){
+					if (prereqBoolArray.indexOf(true) !== -1 && !prereqFullfilled){
 						numPrereqsFullfilled++;
+						prereqFullfilled = true;
 					}
 				}
 
@@ -306,7 +311,11 @@ Schedule.prototype.arePrereqsTaken = function(course, courseSemester) {
 	return numPrereqsFullfilled === course.prereqs.length ? true : false;
 };
 
-
+// Checks if the course is offered that semester and returns true or false
+Schedule.prototype.isCourseOffered = function(course, courseSemester) {
+	currSemester = courseSemester.charAt(4).toUpperCase();
+	return ( course.semesters.indexOf(currSemester) !== -1 );
+};
 
 
 
@@ -466,7 +475,7 @@ $(document).on('ready', function() {
 
 
 
-function highlightPrereqErrors(schedule) {
+function highlightErrors(schedule) {
 	$('#years-container').find('.course-code').each(function(i) {
 		var courseCode = $(this).text().replace(' ','');
 		var course = filterByCode(courseList, courseCode)[0];
@@ -477,6 +486,12 @@ function highlightPrereqErrors(schedule) {
 			$(this).closest('.course').addClass('highlight-error');
 			$(this).closest('.course').find('.prereq-error').show();
 		}
+		var offeredInSemester = mySchedule.isCourseOffered(course, currSemester);
+		if (!offeredInSemester) {
+			$(this).closest('.course').addClass('highlight-error');
+			$(this).closest('.course').find('.semester-error').show();
+		}
+
 	});
 }
 
@@ -569,13 +584,14 @@ $(document).on('sortreceive','.semester',function() {
 
 	// Reset course classes and empty semester arrays in mySchedule
 	$('.course').removeClass('highlight-error');
+	$('.course').find('.semester-error').hide();
 	$('.course').find('.prereq-error').hide();
 	$('.semester').each(function(i) {
 		mySchedule[currSemester] = [];
 	});
 
 	// Highlight any prerequisite errors
-	highlightPrereqErrors(mySchedule);
+	highlightErrors(mySchedule);
 });
 
 
@@ -594,12 +610,13 @@ $(document).on('sortremove','.semester', function() {
 	// Reset course classes and empty semester arrays in mySchedule
 	$('.course').removeClass('highlight-error');
 	$('.course').find('.prereq-error').hide();
+	$('.course').find('.semester-error').hide();
 	$('.semester').each(function(i) {
 		mySchedule[currSemester] = [];
 	});
 
 	// Highlight any prerequisite errors
-	highlightPrereqErrors(mySchedule);
+	highlightErrors(mySchedule);
 
 });
 

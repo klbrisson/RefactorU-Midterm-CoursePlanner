@@ -24,15 +24,25 @@
 
 }
 .required-course {
-	background-color: #CCE9ED;
+	background-color: #E1F2F5;
 }
 
 .elective-course {
-	background-color: #D4EDCC;
+	background-color: #E0F2DA;
 }
 
 .highlight-error {
-	background-color: #FFBABA;
+	background-color: #FFDBDB;
+}
+
+.prereq-error {
+	border-top: 1px solid rgba(0,0,0,.15);
+	display: none;
+}
+
+.semester-error {
+	border-top: 1px solid rgba(0,0,0,.15);
+	display: none;
 }
 
 body {
@@ -55,9 +65,7 @@ body {
 	overflow: scroll;
 }
 
-.prereq-error {
-	display: none;
-}
+
 
 .main-content {
 	padding-bottom: 300px;
