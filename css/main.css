@@ -38,6 +38,7 @@
 
 body {
   background-color: #4A4A4A;
+  padding-top: 50px;
 }
 
 .container {
@@ -60,4 +61,8 @@ body {
 
 .prereq-error {
   display: none;
+}
+
+.main-content {
+  padding-bottom: 300px;
 }

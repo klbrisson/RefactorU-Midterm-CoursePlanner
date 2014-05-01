@@ -20,7 +20,8 @@ var MATH117 = new Course(
 	'Functions as mathematical models. Linear, quadratic, and polynomial functions considered symbolically, graphically, numerically, and contextually.'
 );
 
-var MATH118 = new Course ('MATH',
+var MATH118 = new Course (
+	'MATH',
 	118,
 	'College Algebra in Context II',
 	1,
@@ -28,6 +29,39 @@ var MATH118 = new Course ('MATH',
 	'Reciprocals of linear functions, rational functions, and power functions considered symbolically, graphically, numerically, and contextually. ',
 	['MATH117']
 );
+
+var MATH141 = new Course(
+	'MATH',
+	141,
+	'Calculus in Management Sciences',
+	3,
+	['F','S','SS'],
+	'Analytic geometry, limits, equilibrium of supply and demand, differentiation, integration, applications of the derivative, integral.',
+	['MATH118']
+	);
+
+var MATH155 = new Course(
+	'MATH',
+	155,
+	'Calculus for Biological Scientists I',
+	4,
+	['F','S','SS'],
+	'Limits, continuity, differentiation, and integration of elementary functions with applications in the biosciences. Programmable graphing calculator required. '
+	//,['MATH124','MATH125']
+	)
+
+var MATH160 = new Course(
+	'MATH',
+	160,
+	'Calculus for Physical Scientists I',
+	4,
+	['F','S','SS'],
+	'Limits, continuity, differentiation, and integration of elementary functions with applications; conic sections.'
+	//,['MATH124','MATH126']
+	)
+
+
+
 
 var CS110 = new Course (
 	'CS',
@@ -48,6 +82,16 @@ var CS122 = new Course (
 	['MATH118', 'CS161']
 );
 
+var CS150 = new Course (
+	'CS',
+	150,
+	'Interactive Programming with Java',
+	4,
+	['F','S'],
+	'Introduction to object-oriented programming with Java; problem solving, creating applets for Web pages, and graphical user interfaces.'
+	//Placement into MATH 117 or MATH 130. 
+	)
+
 var CS160 = new Course (
 	'CS',
 	160,
@@ -65,8 +109,7 @@ var CS161 = new Course (
 	4,
 	['F','S'],
 	'Fundamental object oriented concepts, inheritance, polymorphism, basic algorithms, linked lists, assertions, recursion, induction, counting.',
-	['CS160']
-	//['MATH141', 'MATH155', 'MATH160']
+	['CS160',['MATH141', 'MATH155', 'MATH160']]
 );
 
 var ART100 = new Course (
@@ -107,7 +150,7 @@ var math = new Major('Math', 'MATH', [MATH117, MATH118]);
 var art = new Major('Art', 'ART', [ART100, ART101, ART105]);
 
 
-var courseList = [E140, MATH117, MATH118, CS110, CS122, CS160, CS161, ART100, ART101, ART105];
+var courseList = [E140, MATH117, MATH118, MATH141, MATH155, MATH160, CS110, CS122, CS150, CS160, CS161, ART100, ART101, ART105];
 
 var majorList = [comSci, eng, math, art];
 
@@ -178,25 +221,56 @@ function Schedule (startingYear, numYears) {
 	}
 }
 
+
+
+//TODO: refactor into smaller, more organized function
 // Given a course object, the function will check to see if all of the
 // prerequisites are in the schedule prior to the desired semester.
-// If the course has no prerequisites, the function will return true.
-Schedule.prototype.arePrereqsTaken = function(course, semester) {
+Schedule.prototype.arePrereqsTaken = function(course, courseSemester) {
+	// If the course has no prerequisites, the function will return true.
 	if (course.prereqs === undefined) {
 		return true;
 	}
-	var allCoursesScheduled = 0;
+
+	var numPrereqsFullfilled = 0;
+
 	for (var i=0; i<course.prereqs.length; i++) {
 		var courseNeeded = course.prereqs[i];
+		console.log(i, courseNeeded instanceof Array);
+
 		for (key in this) {
-			if (key.indexOf('sem-') !== -1 
-				&& filterByCode(this[key], courseNeeded).length > 0
-				&& this.allSemesters.indexOf(key) < this.allSemesters.indexOf(semester)) {
-				allCoursesScheduled++;
+			// checks if the object key is a semester rather than a function or the array of allSemesters
+			// checks if the semester with the prerequisite comes before the semester with the course
+			var keyIsSemester = key.indexOf('sem-') !== -1;
+			var prereqIsBeforeCourse = this.allSemesters.indexOf(key) < this.allSemesters.indexOf(courseSemester);
+			var semester = this[key];
+
+			if (keyIsSemester && prereqIsBeforeCourse){
+
+				// If a student can take any one course in an array to fulfill a prerequisite,
+				// map through the array to create an array of boolean values. If any item is
+				// true, increase numPrereqsFullfilled by one
+				if (courseNeeded instanceof Array) {
+					var prereqBoolArray = courseNeeded.map(function(j) {
+						return filterByCode(semester, j).length > 0;
+					});
+					if (prereqBoolArray.indexOf(true) !== -1){
+						numPrereqsFullfilled++;
+					}
+				}
+
+				// If the courseNeeded is not an array of prerequisites, increment the numPrereqsFullfilled
+				else {
+					var prereqIsInSemester = filterByCode(this[key], courseNeeded).length > 0;
+					if (prereqIsInSemester){
+						numPrereqsFullfilled++;
+					}
+
+				}
 			}
 		}
 	}
-	return allCoursesScheduled === course.prereqs.length ? true : false;
+	return numPrereqsFullfilled === course.prereqs.length ? true : false;
 };
 
 
