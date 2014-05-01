@@ -23,10 +23,16 @@
       <a class="navbar-brand" href="#">Course Planner</a>
     </div>
     <div class="collapse navbar-collapse" id="main-nav">
-    	<ul class="nav navbar-nav">
+    	<ul class="nav navbar-nav navbar-left">
     		<li class="active"><a href="index.html">Semesters</a></li>
     		<li><a href="weekly-schedule.html">Weekly Schedule</a></li>
     		<li><a href="http://www.catalog.colostate.edu/Content/files/2013/CoursePDF/5-FULL-COURSE-LISTING.pdf">Full Course Catalog</a></li>
+    	</ul>
+    	<ul class="nav navbar-nav navbar-right">
+    		<li>
+	    		<a href="#" data-toggle="modal" data-target="#signInBox">Sign In</a>
+				</li>
+    	</ul>
     </div>
 	</div>
 
@@ -35,6 +41,39 @@
 
 
 
+
+<!-- Sign-In Modal -->
+<div class="modal fade" id="signInBox" tabindex="-1" aria-labelledby="signInBox" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="signInBoxLabel">Sign In</h4>
+      </div>
+      <div class="modal-body">
+        <form>
+					<div class="form-group">
+						<input id="user-name"type="text" class="form-control" placeholder="Username">
+					</div>
+					<div class="form-group">
+						<input id="password"type="text" class="form-control" placeholder="Password">
+					</div>
+				</form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Sign In</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+<!-- Main -->
 	<div class="main-content container">
 		<div class="header-years jumbotron">
 			<div class="header-text">
@@ -80,6 +119,9 @@
 			<!-- Required Courses -->
 				<div>
 					<h3>Required Courses</h3>
+						<div class="form-group">
+		        	<input id="course-search"type="text" class="form-control" placeholder="Search">
+		        </div>
 					<ul id="required-courses" class="sortable connected list-group list-unstlyed"></ul>
 				</div>
 
@@ -163,11 +205,12 @@
 		        <h4 class="modal-title" id="myModalLabel">Full Course Listing</h4>
 		        <form>
 			        <div class="form-group">
-			        	<input id="course-search"type="text" class="form-control" placeholder="Search">
+			        	<input id="elective-search"type="text" class="form-control" placeholder="Search">
 			        </div>
 		        </form>
 		      </div>
 		      <ul id="course-listing" class="modal-body">
+		      	<li class="elective-error list-item list-unstyled">Please Select a Major Before Adding Electives</li>
 		      </ul>
 		      <div class="modal-footer">
 		        <button id="close-modal" type="button" class="btn btn-default" data-dismiss="modal">Close</button>

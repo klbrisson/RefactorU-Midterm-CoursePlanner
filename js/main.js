@@ -187,6 +187,44 @@ var majorList = [comSci, eng, math, art];
 
 
 
+// Convert 24-hour Number to 12-hour String and
+// Converts 12-hour String to 24-hour Number
+// ** Currenly only works for hours **
+function convertTime(time) {
+	var amPm;
+	var time12;
+	var time24;
+	var timeString;
+
+	// Converts 24-hour Number to a string
+	if (typeof time === 'number') {
+		if (time < 0 || time > 23) {
+			throw new Error('Time out of range. Must be between 0 and 23 (inclusive)');
+		}
+		time24 = time;
+		amPm = time24 < 12 ? 'am' : 'pm';
+		time12 = time24 <= 12 ? time24 : time24 - 12;
+		timeString = time24 === 0 ? '12:00 am' : time12 + ':00 ' + amPm;
+		console.log(timeString);
+		return timeString;
+	}
+	// Converts String to 24-hour Number
+	else if (typeof time === 'string') {
+		// Accepts formats 'hh:mm xm' or 'h:mm xm' or 'h: xm'
+		timeString = time;
+		time12 = +timeString.slice(0,timeString.indexOf(':'));
+		amPm = timeString.slice(timeString.length -2).toLowerCase();
+		if (amPm !== 'am' && amPm !== 'pm') {
+			throw new Error('Time format is incorrect. convertTime() accepts "hh:mm xm" or "h:mm xm" or "h: xm"');
+		}
+		if (time12 === 12) {
+			return amPm === 'am' ? 0 : 12;
+		}
+		time24 = amPm === 'am' ? time12 : time12 + 12;
+		return time24;
+	}
+}
+
 // Finds and returns the object in a list associated with the given name, ignoring case
 function findObject(list, name) {
 	var filteredList = list.filter(function(obj) {
@@ -533,29 +571,42 @@ function highlightErrors(schedule) {
 // Clear the modal courses, and re-append courseList
 $(document).on('click','#course-list-btn', function() {
 	var selectedMajor = findObject(majorList, $('#select-major').val());
-	var electivesList = filterOutMajorCourses(courseList, selectedMajor);
-	$('#course-search').closest('form')[0].reset();
-	$('#course-listing').empty();
+	$('#elective-search').closest('form')[0].reset();
 
-	// if (selectedMajor === undefined) {
-	// }
-
-	$('#course-listing').append(mapCreateCourse(electivesList));
-	$('#course-listing').find('.course-info').append('<div><button class="add-elective-btn btn btn-default btn-xs">Add Elective</button></div>');
+	if (selectedMajor !== undefined) {
+		var electivesList = filterOutMajorCourses(courseList, selectedMajor);
+		$('#course-listing').empty();
+		$('#course-listing').append(mapCreateCourse(electivesList));
+		$('#course-listing').find('.course-info').append('<div><button class="add-elective-btn btn btn-default btn-xs">Add Elective</button></div>');
+	}
 });
 
 
 
-// Search courses by course name 
-	$(document).on('keyup', '#course-search', function() {
+// Search electives in modal by course name 
+	$(document).on('keyup', '#elective-search', function() {
 		var selectedMajor = findObject(majorList, $('#select-major').val());
-		var electivesList = filterOutMajorCourses(courseList, selectedMajor);
-		$('#course-listing').empty();
-		var search = $(this).val();
-		$('#course-listing').append(mapCreateCourse(searchForCourse(electivesList, search)));
-		$('#course-listing').find('.course-info').append('<div><button class="add-elective-btn btn btn-default btn-xs">Add Elective</button></div>');
+		
+		if (selectedMajor !== undefined) {
+			var electivesList = filterOutMajorCourses(courseList, selectedMajor);
+			$('#course-listing').empty();
+			var search = $(this).val();
+			$('#course-listing').append(mapCreateCourse(searchForCourse(electivesList, search)));
+			$('#course-listing').find('.course-info').append('<div><button class="add-elective-btn btn btn-default btn-xs">Add Elective</button></div>');
+		}
 	});
 
+// Search required courses by course name 
+	$(document).on('keyup', '#course-search', function() {
+		var selectedMajor = findObject(majorList, $('#select-major').val());
+		var searchRequiredCourses = selectedMajor === undefined ? courseList : selectedMajor.requiredCourses;
+		$('#required-courses').empty();
+		var search = $(this).val();
+		$('#required-courses').append(mapCreateCourse(searchForCourse(searchRequiredCourses, search)));
+		if (selectedMajor !== undefined) {
+			$('#required-courses').find('.course').addClass('required-course');
+		}
+	});
 
 // Add Course to Electives List
 	$(document).on('click', '.add-elective-btn', function() {
@@ -674,42 +725,33 @@ function createHour (time) {
 // Will call createHour and append each returned hour to the week
 // given a starting hour and ending hour (24-hour format)
 function addHours (startHour, endHour) {
-	// var startHour = $('#start-time').val()
+	$('.week-container').empty();
 	for (var i = startHour; i <= endHour; i++) {
 		var amPm = i < 12 ? 'am' : 'pm';
 		var time = i <= 12 ? i : i - 12;
 		var timeStr = time + ':00 ' + amPm;
-		$('.week').append(createHour(timeStr));
+		$('.week-container').append(createHour(timeStr));
 	}
 }
 
-addHours(8, 17);
-
-
-// // Convert 24-hour Number to 12-hour String and
-// // Converts 12-hour String to 24-hour Number
-// function convertTime(time) {
-// 	var amPm;
-// 	var time12;
-// 	var time24;
-// 	var timeString;
-// 	if (typeof time === 'number') {
-// 		console.log('number!');
-
-
-// 	}
-// 	else {
-// 		console.log('not a number!');
-
-// 	}
-// }
+// adds default starting hours
+addHours(8, 18);
 
 
 
+$(document).on('change','#start-time', function() {
+	var startTime = convertTime($('#start-time').val());
+	var endTime = convertTime($('#end-time').val());
+	addHours(startTime, endTime);
+})
 
 
 
-
+$(document).on('change','#end-time', function() {
+	var startTime = convertTime($('#start-time').val());
+	var endTime = convertTime($('#end-time').val());
+	addHours(startTime, endTime);
+})
 
 
 
