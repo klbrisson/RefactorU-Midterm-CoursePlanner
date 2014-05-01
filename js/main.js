@@ -146,7 +146,7 @@ var ART105 = new Course (
 // var courseList = new CourseCatalog(E140, MATH117, MATH118, CS110, CS122, CS160, CS161);
 var comSci = new Major('Computer Science', 'CS', [MATH117, MATH118, CS110, CS122, CS160, CS161]);
 var eng = new Major('English', 'E', [E140]);
-var math = new Major('Math', 'MATH', [MATH117, MATH118]);
+var math = new Major('Math', 'MATH', [MATH117, MATH118, MATH160]);
 var art = new Major('Art', 'ART', [ART100, ART101, ART105]);
 
 
@@ -154,19 +154,48 @@ var courseList = [E140, MATH117, MATH118, MATH141, MATH155, MATH160, CS110, CS12
 
 var majorList = [comSci, eng, math, art];
 
+// var E = new Department('E', 'English');
+// var MATH = new Department('MATH', 'Math');
+// var CS = new Department('CS', 'Computer Science');
+// var ART = new Department('ART', 'Art');
 
-
+// var deptList = [E, MATH, CS, ART];
 
 
 
 //----------------------------------------------------------
 
+// // Department constructor
+// function Department (code, name) {
+// 	this.name = name;
+// 	this.code = code;
+// 	this.courses = [];
+// }
+
+// Department.prototype.addCourse = function(course) {
+// 	if (course.department === this.code) {
+// 		this.courses.push(course);
+// 	}
+// };
+
+// Department.prototype.createDeptCourseList = function() {
+// 	for (var i=0; i<this.courses.length; i++) {
+
+// 	}
+// };
 
 
 
 
+// Finds and returns the object in a list associated with the given name, ignoring case
+function findObject(list, name) {
+	var filteredList = list.filter(function(obj) {
+		return name.toLowerCase() === obj.name.toLowerCase();
+	});
+	return filteredList[0];
+}
 
-
+//----------------------- COURSE -------------------------
 // Course constructor
 function Course (department, code, name, credits, semesters, description, prereqs) {
 	this.department = department;
@@ -178,6 +207,7 @@ function Course (department, code, name, credits, semesters, description, prereq
 	this.description = description;
 	this.prereqs = prereqs;
 }
+
 // Create and return jquery course object
 Course.prototype.createCourse = function() {
 	var course = $('.course.template').clone();
@@ -186,7 +216,6 @@ Course.prototype.createCourse = function() {
 	course.find('.course-credits').text(this.credits);
 	course.find('.course-description').text(this.description);
 	course.removeClass('template');
-
 	if (this.prereqs !== undefined) {
 		var prerequisites = this.prereqs.join(', ');
 		course.find('.prereq-error>span').text(prerequisites);
@@ -194,6 +223,8 @@ Course.prototype.createCourse = function() {
 	return course;
 };
 
+
+//----------------------- MAJOR -------------------------
 
 // Major constructor
 function Major (name, department, requiredCourses) {
@@ -206,7 +237,11 @@ Major.prototype.createMajor = function() {
 	var major = $('<option></option>');
 	major.text(this.name);
 	return major;
-}
+};
+
+
+
+//----------------------- SCHEDULE -------------------------
 
 // Schedule Constructor
 function Schedule (startingYear, numYears) {
@@ -220,8 +255,6 @@ function Schedule (startingYear, numYears) {
 		this.allSemesters.push(spring);
 	}
 }
-
-
 
 //TODO: refactor into smaller, more organized function
 // Given a course object, the function will check to see if all of the
@@ -291,8 +324,8 @@ function findRequiredCourses(major) {
 
 // Filter through course names, returning an array of any courses that
 // have names containing the given string
-function searchForCourse(str) {
-	var filteredArray = courseList.filter(function(obj) {
+function searchForCourse(list, str) {
+	var filteredArray = list.filter(function(obj) {
 		return obj.name.toLowerCase().indexOf(str.toLowerCase()) !== -1 ||
 		obj.courseCode.toLowerCase().indexOf(str.toLowerCase().replace(' ','')) !== -1 ?
 		true : false;
@@ -301,17 +334,29 @@ function searchForCourse(str) {
 }
 
 // Filter through courses, returning the course object that matches the course code
-function filterByCode(arr, courseCode) {
-	if (arr.length === 0) {
-		return arr;
+function filterByCode(list, courseCode) {
+	if (list.length === 0) {
+		return list;
 	}
-	var filteredArray = arr.filter(function(obj) {
+	var filteredArray = list.filter(function(obj) {
 		return obj.courseCode === courseCode;
 	})
 	return filteredArray;
 }
 
 
+
+
+// Filters courses, removing any major required courses, returning a new filtered array
+function filterOutMajorCourses(list, major) {
+	if (major === undefined) {
+		return [];
+	}
+	var filteredArray = list.filter(function(course) {
+		return major.requiredCourses.indexOf(course) === -1;
+	})
+	return filteredArray;
+}
 
 
 // Creates and returns a year element
@@ -363,13 +408,6 @@ function strToSum(str) {
 	})
 	return num;
 }
-
-
-
-
-
-
-
 
 
 
@@ -475,20 +513,31 @@ function highlightPrereqErrors(schedule) {
 		$(this).closest('.course').find('.course-info').toggle();
 	});
 
+
+
 // Clear the modal courses, and re-append courseList
 $(document).on('click','#course-list-btn', function() {
+	var selectedMajor = findObject(majorList, $('#select-major').val());
+	var electivesList = filterOutMajorCourses(courseList, selectedMajor);
 	$('#course-search').closest('form')[0].reset();
 	$('#course-listing').empty();
-	$('#course-listing').append(mapCreateCourse(courseList));
+
+	// if (selectedMajor === undefined) {
+	// }
+
+	$('#course-listing').append(mapCreateCourse(electivesList));
 	$('#course-listing').find('.course-info').append('<div><button class="add-elective-btn btn btn-default btn-xs">Add Elective</button></div>');
 });
 
+
+
 // Search courses by course name 
 	$(document).on('keyup', '#course-search', function() {
+		var selectedMajor = findObject(majorList, $('#select-major').val());
+		var electivesList = filterOutMajorCourses(courseList, selectedMajor);
 		$('#course-listing').empty();
 		var search = $(this).val();
-		console.log(search);
-		$('#course-listing').append(mapCreateCourse(searchForCourse(search)));
+		$('#course-listing').append(mapCreateCourse(searchForCourse(electivesList, search)));
 		$('#course-listing').find('.course-info').append('<div><button class="add-elective-btn btn btn-default btn-xs">Add Elective</button></div>');
 	});
 
@@ -501,6 +550,12 @@ $(document).on('click','#course-list-btn', function() {
 		$('#my-electives').find('.course').addClass('elective-course');
 		$(this).closest('li').find('.course-info').toggle();
 	});
+
+
+
+
+
+
 
 
 // Update displayed credits, reset course classes and empty mySchedule
@@ -522,6 +577,10 @@ $(document).on('sortreceive','.semester',function() {
 	// Highlight any prerequisite errors
 	highlightPrereqErrors(mySchedule);
 });
+
+
+
+
 
 $(document).on('sortremove','.semester', function() {
 	var currSemester = 'sem-' + $(this).find('.semester-label').text().replace(' ','').toLowerCase();
@@ -545,7 +604,99 @@ $(document).on('sortremove','.semester', function() {
 });
 
 
-// Sortable Drag and Drop 
+
+
+
+
+
+
+
+
+
+
+
+
+
+//------------------------ Weekly Schedule ------------------
+
+// Creates and returns a time select option
+//TODO: fix when time is midnight
+function createTimeOption (time24) {
+	var amPm = time24 < 12 ? 'am' : 'pm';
+	var time12 = time24 <= 12 ? time24 : time24 - 12;
+	var timeStr = time12 + ':00 ' + amPm;
+	if (time24 === 12) {
+		var timeOption = $('<option selected="selected">'+ timeStr +'</option>');
+	}
+	else {
+		var timeOption = $('<option>'+ timeStr +'</option>');
+	}
+	return timeOption;
+}
+
+// Appends time options
+function addTimeOptions (selectID) {
+	for(var i=5; i<24; i++) {
+		$(selectID).append(createTimeOption(i));
+	}
+}
+
+addTimeOptions('#start-time');
+addTimeOptions('#end-time');
+
+
+// Creates and returns a clone of the hour template,
+// removing the template class and adding the given time as text
+function createHour (time) {
+	var hour = $('.hour.template').clone();
+	hour.find('.time').text(time);
+	hour.removeClass('template');
+	return hour;
+}
+
+// Will call createHour and append each returned hour to the week
+// given a starting hour and ending hour (24-hour format)
+function addHours (startHour, endHour) {
+	// var startHour = $('#start-time').val()
+	for (var i = startHour; i <= endHour; i++) {
+		var amPm = i < 12 ? 'am' : 'pm';
+		var time = i <= 12 ? i : i - 12;
+		var timeStr = time + ':00 ' + amPm;
+		$('.week').append(createHour(timeStr));
+	}
+}
+
+addHours(8, 17);
+
+
+// // Convert 24-hour Number to 12-hour String and
+// // Converts 12-hour String to 24-hour Number
+// function convertTime(time) {
+// 	var amPm;
+// 	var time12;
+// 	var time24;
+// 	var timeString;
+// 	if (typeof time === 'number') {
+// 		console.log('number!');
+
+
+// 	}
+// 	else {
+// 		console.log('not a number!');
+
+// 	}
+// }
+
+
+
+
+
+
+
+
+
+
+// Sortable Drag and Drop (applies to all pages)
 	$('.sortable').sortable();
 	$('.sortable, .sortable').sortable({
 	    connectWith: '.connected'
@@ -554,14 +705,50 @@ $(document).on('sortremove','.semester', function() {
 
 
 
-
-
-
-
-
-
-
+//End of $(document).on('ready');
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

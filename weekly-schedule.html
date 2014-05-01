@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Course Planner - Weekly Schedule</title>
+  <link rel="stylesheet" type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="jquery-ui-custom/css/no-theme/jquery-ui-1.10.4.custom.min.css">
+  <link rel="stylesheet" type="text/css" href="css/main.css">
+
+
+
+</head>
+<body>
+<nav id="main-navbar" class="navbar navbar-default navbar-fixed-top">
+	<div class="container-fluid">
+  	<div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-nav">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">Course Planner</a>
+    </div>
+    <div class="collapse navbar-collapse" id="main-nav">
+    	<ul class="nav navbar-nav">
+    		<li><a href="index.html">Semesters</a></li>
+    		<li class="active"><a href="weekly-schedule.html">Weekly Schedule</a></li>
+    		<li><a href="http://www.catalog.colostate.edu/Content/files/2013/CoursePDF/5-FULL-COURSE-LISTING.pdf">Full Course Catalog</a></li>
+    	</ul>
+    </div>
+	</div>
+
+</nav>
+
+
+
+  <div class="main-content container">
+    <div class="header-weekly jumbotron">
+      <div class="header-text">
+        <h1>Weekly Schedule</h1>
+        <p></p>
+      </div>
+    </div>
+
+    <form>
+      <label for="start-time">Choose a Starting Time</label>
+        <select id="start-time"></select>
+      <label for="end-time">Choose an End Time</label>
+        <select id="end-time"></select>
+    </form>
+
+    <div class="week container-fluid">
+        <div class="week-heading row">
+          <div class="time col-xs-2">Time</div>
+          <div class="mon col-xs-2">Monday</div>
+          <div class="tue col-xs-2">Tuesday</div>
+          <div class="wed col-xs-2">Wednesday</div>
+          <div class="thur col-xs-2">Thursday</div>
+          <div class="fri col-xs-2">Friday</div>
+        </div>
+
+        <div class="hour template row">
+          <div class="time col-xs-2">Time</div>
+
+          <div class="time-slot mon col-xs-2">
+            <ul class="sortable connected list-unstyled list-group">
+              <li class="list-group-item weekly-course template">Course</li>
+            </ul>
+          </div>
+
+          <div class="time-slot tue col-xs-2">
+            <ul class="sortable connected list-unstyled list-group">
+              <li class="list-group-item weekly-course template">Course</li>
+            </ul>
+          </div>
+
+          <div class="time-slot wed col-xs-2">
+            <ul class="sortable connected list-unstyled list-group">
+              <li class="list-group-item weekly-course template">Course</li>
+            </ul>
+          </div>
+
+          <div class="time-slot thur col-xs-2">
+            <ul class="sortable connected list-unstyled list-group">
+              <li class="list-group-item weekly-course template">Course</li>
+            </ul>
+          </div>
+
+          <div class="time-slot fri col-xs-2">
+            <ul class="sortable connected list-unstyled list-group">
+              <li class="list-group-item weekly-course template">Course</li>
+            </ul>
+          </div>
+        </div>
+
+
+      </div>
+
+
+    </div>
+    
+
+
+  </div>
+
+
+
+
+
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+	<script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+  <script src="jquery-ui-custom/js/jquery-ui-1.10.4.custom.min.js"></script>
+  <script src="js/main.js"></script>
+
+</body>
+</html>

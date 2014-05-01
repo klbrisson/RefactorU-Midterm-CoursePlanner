@@ -12,7 +12,8 @@
 }
 
 .year {
-	border-top: 1px solid #EDEDED;
+	margin-top: 5px;
+	border-top: 2px solid #EDEDED;
 	position: relative;
 }
 .semester{
@@ -41,7 +42,7 @@ body {
 .container{
 	background-color: #fff;
 }
-.header {
+.header-years {
 	color: #FFF;
 	text-shadow: .15em .15em .15em #000;
 	margin-bottom: 20px;
@@ -70,7 +71,21 @@ body {
 
 
 
+//-------- Weekly Schedule ---------
+.hour {
+	margin: 0;
+	padding: 0;
+}
+.time-slot {
+	padding: 0;
+	margin: 0;
 
+	ul {
+	min-height: 50px;
+	border: 1px solid #EDEDED;
+	margin: 0;
+	}
+}
 
 
 
