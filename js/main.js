@@ -586,7 +586,7 @@ $(document).on('click','#course-list-btn', function() {
 // Search electives in modal by course name 
 	$(document).on('keyup', '#elective-search', function() {
 		var selectedMajor = findObject(majorList, $('#select-major').val());
-		
+
 		if (selectedMajor !== undefined) {
 			var electivesList = filterOutMajorCourses(courseList, selectedMajor);
 			$('#course-listing').empty();
@@ -752,7 +752,6 @@ $(document).on('change','#end-time', function() {
 	var endTime = convertTime($('#end-time').val());
 	addHours(startTime, endTime);
 })
-
 
 
 // Sortable Drag and Drop (applies to all pages)
