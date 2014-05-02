@@ -122,9 +122,51 @@
 			<!-- Required Courses -->
 				<div>
 					<h3>Required Courses</h3>
-						<div class="form-group">
-		        	<input id="course-search"type="text" class="form-control" placeholder="Search">
-		        </div>
+			
+						<form >
+							<div class="form-group">
+			        	<input id="course-search"type="text" class="form-control" placeholder="Search">
+			        </div>
+
+			        <div class="extra-filters container-fluid">
+			        	<div class="row">
+			        		 <div class="form-group col-xs-6 col-md-8 col-lg-6">
+					        	<label for="select-credits">Credits</label>
+					        	<select id="select-credits" class="form-control">
+					        		<option selected="selected">No Filter</option>
+					        		<option>1</option>
+					        		<option>2</option>
+					        		<option>3</option>
+					        		<option>4</option>
+					        		<option>5</option>
+					        	</select>
+					        </div>
+
+					      <!--   <li>
+						        <div class="checkbox">
+						        	<label>
+						        		<input type="checkbox"> No Prerequisites
+						        	</label>
+						        </div>
+						       </li>
+						       <li>
+						        <div class="checkbox">
+						        	<label>
+						        		<input type="checkbox"> Prerequisites Fullfilled
+						        	</label>
+						        </div>
+						        </li> -->
+
+
+			        	</div>
+			        </div>
+		        </form>
+
+		     <!--    <button class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
+		        	Filter Courses 
+							<span class="caret"></span>
+						</button>
+ -->
 					<ul id="required-courses" class="sortable connected list-group list-unstlyed"></ul>
 				</div>
 

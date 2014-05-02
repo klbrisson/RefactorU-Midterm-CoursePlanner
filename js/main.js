@@ -60,9 +60,6 @@ var MATH160 = new Course(
 	//,['MATH124','MATH126']
 	)
 
-
-
-
 var CS110 = new Course (
 	'CS',
 	110,
@@ -121,8 +118,6 @@ var ART100 = new Course (
 	'Exploration of the development of visual arts.'
 );
 
-
-
 var ART101 = new Course (
 	'ART',
 	101,
@@ -164,25 +159,6 @@ var majorList = [comSci, eng, math, art];
 
 
 //----------------------------------------------------------
-
-// // Department constructor
-// function Department (code, name) {
-// 	this.name = name;
-// 	this.code = code;
-// 	this.courses = [];
-// }
-
-// Department.prototype.addCourse = function(course) {
-// 	if (course.department === this.code) {
-// 		this.courses.push(course);
-// 	}
-// };
-
-// Department.prototype.createDeptCourseList = function() {
-// 	for (var i=0; i<this.courses.length; i++) {
-
-// 	}
-// };
 
 
 
@@ -233,6 +209,10 @@ function findObject(list, name) {
 	return filteredList[0];
 }
 
+
+
+
+
 //----------------------- COURSE -------------------------
 // Course constructor
 function Course (department, code, name, credits, semesters, description, prereqs) {
@@ -266,7 +246,6 @@ Course.prototype.createCourse = function() {
 
 
 //----------------------- MAJOR -------------------------
-
 // Major constructor
 function Major (name, department, requiredCourses) {
 	this.name = name;
@@ -355,7 +334,7 @@ Schedule.prototype.isCourseOffered = function(course, courseSemester) {
 	return ( course.semesters.indexOf(currSemester) !== -1 );
 };
 
-
+// ---------------------- End of Schedule --------------------------
 
 
 
@@ -390,8 +369,6 @@ function filterByCode(list, courseCode) {
 	})
 	return filteredArray;
 }
-
-
 
 
 // Filters courses, removing any major required courses, returning a new filtered array
@@ -459,9 +436,6 @@ function strToSum(str) {
 
 
 
-
-
-
 $(document).on('ready', function() {
 	var thisYear = new Date().getFullYear();
 
@@ -487,7 +461,6 @@ $(document).on('ready', function() {
 		numYears = +$('#select-years').val();
 		addYears(numYears, startingYear);
 		mySchedule = new Schedule(startingYear, numYears);
-		console.log(mySchedule);
 		$('.sortable').sortable();
 		$('.sortable, .sortable').sortable({
 		    connectWith: '.connected'
@@ -508,11 +481,7 @@ $(document).on('ready', function() {
 
 
 
-
-
-
-
-
+// Highlights and shows prerequisite or semester errors
 function highlightErrors(schedule) {
 	$('#years-container').find('.course-code').each(function(i) {
 		var courseCode = $(this).text().replace(' ','');
@@ -533,8 +502,15 @@ function highlightErrors(schedule) {
 	});
 }
 
-
-
+// Removes any error highlight classes, hides error messages, and clears courses from the schedule
+ function resetSemesters(schedule, semester) {
+	$('.course').removeClass('highlight-error');
+	$('.course').find('.prereq-error').hide();
+	$('.course').find('.semester-error').hide();
+	$('.semester').each(function(i) {
+		mySchedule[semester] = [];
+	});
+}
 
 
 // Append courses and majors to lists
@@ -619,12 +595,7 @@ $(document).on('click','#course-list-btn', function() {
 
 
 
-
-
-
-
-
-// Update displayed credits, reset course classes and empty mySchedule
+// Update displayed credits, reset course classes and empty mySchedule when course is added to Semester
 $(document).on('sortreceive','.semester',function() {
 	var currSemester = 'sem-' + $(this).find('.semester-label').text().replace(' ','').toLowerCase();
 
@@ -634,21 +605,13 @@ $(document).on('sortreceive','.semester',function() {
 	$(this).closest('.year').find('.credits-' + currSemester).text(credits);
 
 	// Reset course classes and empty semester arrays in mySchedule
-	$('.course').removeClass('highlight-error');
-	$('.course').find('.semester-error').hide();
-	$('.course').find('.prereq-error').hide();
-	$('.semester').each(function(i) {
-		mySchedule[currSemester] = [];
-	});
+	resetSemesters(mySchedule, currSemester);
 
 	// Highlight any prerequisite errors
 	highlightErrors(mySchedule);
 });
 
-
-
-
-
+// Update displayed credits, reset course classes and empty mySchedule when course is removed from Semester
 $(document).on('sortremove','.semester', function() {
 	var currSemester = 'sem-' + $(this).find('.semester-label').text().replace(' ','').toLowerCase();
 
@@ -657,30 +620,13 @@ $(document).on('sortremove','.semester', function() {
 	credits = strToSum(credits);
 	$(this).closest('.year').find('.credits-' + currSemester).text(credits);
 
-
 	// Reset course classes and empty semester arrays in mySchedule
-	$('.course').removeClass('highlight-error');
-	$('.course').find('.prereq-error').hide();
-	$('.course').find('.semester-error').hide();
-	$('.semester').each(function(i) {
-		mySchedule[currSemester] = [];
-	});
+	resetSemesters(mySchedule, currSemester);
 
 	// Highlight any prerequisite errors
 	highlightErrors(mySchedule);
 
 });
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -732,6 +678,11 @@ function addHours (startHour, endHour) {
 		var timeStr = time + ':00 ' + amPm;
 		$('.week-container').append(createHour(timeStr));
 	}
+	$('.sortable').sortable();
+	$('.sortable, .sortable').sortable({
+	    connectWith: '.connected'
+	});
+
 }
 
 // adds default starting hours
@@ -752,13 +703,6 @@ $(document).on('change','#end-time', function() {
 	var endTime = convertTime($('#end-time').val());
 	addHours(startTime, endTime);
 })
-
-
-// Sortable Drag and Drop (applies to all pages)
-	$('.sortable').sortable();
-	$('.sortable, .sortable').sortable({
-	    connectWith: '.connected'
-	});
 
 
 
